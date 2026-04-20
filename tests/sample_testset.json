@@ -1,0 +1,170 @@
+[
+  {
+    "question": "What is Artificial Intelligence?",
+    "ground_truth": "Artificial Intelligence is the simulation of human intelligence in machines that enables them to learn, reason, and perform tasks.",
+    "category": "AI Basics",
+    "difficulty": "easy",
+    "expected_keywords": ["intelligence", "machines", "learning", "reason"]
+  },
+  {
+    "question": "What is Machine Learning?",
+    "ground_truth": "Machine Learning is a subset of Artificial Intelligence that allows systems to learn from data and improve without explicit programming.",
+    "category": "ML Basics",
+    "difficulty": "easy",
+    "expected_keywords": ["learning", "data", "patterns"]
+  },
+  {
+    "question": "What is Deep Learning?",
+    "ground_truth": "Deep Learning is a subset of Machine Learning that uses neural networks with multiple layers to model complex patterns in data.",
+    "category": "ML Basics",
+    "difficulty": "easy",
+    "expected_keywords": ["neural networks", "layers", "deep learning"]
+  },
+  {
+    "question": "What is supervised learning?",
+    "ground_truth": "Supervised learning is a type of machine learning where models are trained using labeled data to map inputs to outputs.",
+    "category": "ML Types",
+    "difficulty": "easy",
+    "expected_keywords": ["labeled data", "training", "input output"]
+  },
+  {
+    "question": "What is unsupervised learning?",
+    "ground_truth": "Unsupervised learning is a type of machine learning where models identify patterns and structure in unlabeled data.",
+    "category": "ML Types",
+    "difficulty": "easy",
+    "expected_keywords": ["unlabeled data", "patterns"]
+  },
+  {
+    "question": "What is overfitting?",
+    "ground_truth": "Overfitting occurs when a model learns training data too well, including noise, and performs poorly on unseen data.",
+    "category": "Model Issues",
+    "difficulty": "medium",
+    "expected_keywords": ["training data", "generalization", "noise"]
+  },
+  {
+    "question": "What is underfitting?",
+    "ground_truth": "Underfitting occurs when a model is too simple to capture the underlying patterns in data, leading to poor performance.",
+    "category": "Model Issues",
+    "difficulty": "medium",
+    "expected_keywords": ["simple model", "patterns"]
+  },
+  {
+    "question": "What is a neural network?",
+    "ground_truth": "A neural network is a computational model inspired by the human brain, consisting of interconnected layers of nodes.",
+    "category": "ML Models",
+    "difficulty": "easy",
+    "expected_keywords": ["layers", "nodes", "brain"]
+  },
+  {
+    "question": "What is a dataset?",
+    "ground_truth": "A dataset is a structured collection of data used for training, testing, or evaluating machine learning models.",
+    "category": "Data",
+    "difficulty": "easy",
+    "expected_keywords": ["data", "collection"]
+  },
+  {
+    "question": "What is training data?",
+    "ground_truth": "Training data is the dataset used to train a machine learning model to learn patterns.",
+    "category": "Data",
+    "difficulty": "easy",
+    "expected_keywords": ["training", "data"]
+  },
+  {
+    "question": "What is testing data?",
+    "ground_truth": "Testing data is used to evaluate the performance of a trained model on unseen data.",
+    "category": "Data",
+    "difficulty": "easy",
+    "expected_keywords": ["evaluation", "unseen"]
+  },
+  {
+    "question": "What is validation data?",
+    "ground_truth": "Validation data is used during training to tune model parameters and prevent overfitting.",
+    "category": "Data",
+    "difficulty": "medium",
+    "expected_keywords": ["tuning", "parameters"]
+  },
+  {
+    "question": "What is accuracy?",
+    "ground_truth": "Accuracy is the ratio of correct predictions to the total number of predictions made by a model.",
+    "category": "Metrics",
+    "difficulty": "easy",
+    "expected_keywords": ["correct predictions"]
+  },
+  {
+    "question": "What is precision?",
+    "ground_truth": "Precision is the ratio of true positive predictions to the total predicted positives.",
+    "category": "Metrics",
+    "difficulty": "medium",
+    "expected_keywords": ["true positive", "predicted positives"]
+  },
+  {
+    "question": "What is recall?",
+    "ground_truth": "Recall is the ratio of true positive predictions to the actual positives in the dataset.",
+    "category": "Metrics",
+    "difficulty": "medium",
+    "expected_keywords": ["true positive", "actual positives"]
+  },
+  {
+    "question": "What is F1 score?",
+    "ground_truth": "F1 score is the harmonic mean of precision and recall, balancing both metrics.",
+    "category": "Metrics",
+    "difficulty": "medium",
+    "expected_keywords": ["precision", "recall"]
+  },
+  {
+    "question": "Explain the difference between precision and recall.",
+    "ground_truth": "Precision measures the correctness of predicted positives while recall measures how many actual positives are captured.",
+    "category": "Metrics",
+    "difficulty": "medium",
+    "expected_keywords": ["precision", "recall", "difference"]
+  },
+  {
+    "question": "What is a confusion matrix?",
+    "ground_truth": "A confusion matrix is a table used to evaluate classification models by comparing predicted and actual values.",
+    "category": "Metrics",
+    "difficulty": "medium",
+    "expected_keywords": ["table", "classification"]
+  },
+  {
+    "question": "What is Natural Language Processing?",
+    "ground_truth": "Natural Language Processing is a field of AI that enables machines to understand, interpret, and generate human language.",
+    "category": "NLP",
+    "difficulty": "easy",
+    "expected_keywords": ["language", "text"]
+  },
+  {
+    "question": "What is tokenization?",
+    "ground_truth": "Tokenization is the process of breaking text into smaller units such as words or subwords.",
+    "category": "NLP",
+    "difficulty": "easy",
+    "expected_keywords": ["text", "tokens"]
+  },
+  {
+    "question": "What is a Large Language Model?",
+    "ground_truth": "A Large Language Model is an AI model trained on vast text data to understand and generate human-like language.",
+    "category": "NLP",
+    "difficulty": "medium",
+    "expected_keywords": ["language model", "text data"]
+  },
+  {
+    "question": "What is the capital of France?",
+    "ground_truth": "Paris is the capital city of France.",
+    "category": "General Knowledge",
+    "difficulty": "easy",
+    "expected_keywords": ["Paris"]
+  },
+  {
+    "question": "Why is overfitting bad?",
+    "ground_truth": "Overfitting is bad because it reduces a model's ability to generalize to new, unseen data.",
+    "category": "Model Issues",
+    "difficulty": "medium",
+    "expected_keywords": ["generalization"]
+  },
+  {
+    "question": "What is a model in machine learning?",
+    "ground_truth": "A model is a mathematical representation learned from data to make predictions or decisions.",
+    "category": "ML Basics",
+    "difficulty": "medium",
+    "expected_keywords": ["prediction", "data"]
+  }
+]

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Eval Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f9f9f8; color: #111; padding: 2rem; max-width: 1000px; margin: 0 auto; }
+
+    .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid #e5e5e5; }
+    .header-left h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .header-left p { font-size: 13px; color: #888; }
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+    .run-btn { display: flex; align-items: center; gap: 6px; border: 1px solid #ddd; background: #fff; color: #111; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+    .run-btn:hover { background: #f5f5f5; }
+    .run-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .status-pill { font-size: 12px; padding: 3px 10px; border-radius: 999px; font-weight: 500; }
+    .status-idle    { background: #f0f0f0; color: #888; }
+    .status-ok      { background: #eaf3de; color: #3b6d11; }
+    .status-err     { background: #fcebeb; color: #a32d2d; }
+    .status-loading { background: #faeeda; color: #854f0b; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+    .metric-card { background: #f0f0ee; border-radius: 12px; padding: 1rem 1.25rem; }
+    .metric-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .metric-value { font-size: 26px; font-weight: 500; color: #111; line-height: 1; }
+    .metric-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .section-title { font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .result-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 10px; transition: border-color 0.15s; }
+    .result-card:hover { border-color: #ccc; }
+
+    .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .question { font-size: 14px; font-weight: 500; color: #111; }
+
+    .badge { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+    .badge-good { background: #eaf3de; color: #3b6d11; }
+    .badge-mid  { background: #faeeda; color: #854f0b; }
+    .badge-low  { background: #fcebeb; color: #a32d2d; }
+
+    .scores { display: flex; flex-direction: column; gap: 7px; }
+    .score-row { display: flex; align-items: center; gap: 12px; }
+    .score-label { font-size: 12px; color: #888; width: 140px; flex-shrink: 0; }
+    .bar-bg { flex: 1; height: 5px; background: #f0f0f0; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .score-num { font-size: 12px; font-weight: 500; width: 36px; text-align: right; flex-shrink: 0; }
+
+    .divider { height: 1px; background: #f0f0f0; margin: 10px 0; }
+
+    .toggle-btn { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #888; cursor: pointer; border: none; background: none; padding: 0; margin-top: 10px; }
+    .toggle-btn:hover { color: #333; }
+    .toggle-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; transition: transform 0.2s; }
+    .toggle-btn.open svg { transform: rotate(180deg); }
+
+    .detail { display: none; margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; }
+    .detail.open { display: block; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-box { background: #f9f9f8; border-radius: 8px; padding: 10px 12px; }
+    .dlabel { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .dtext { font-size: 12px; color: #333; line-height: 1.6; }
+
+    .empty { color: #aaa; font-size: 14px; text-align: center; padding: 3rem 0; border: 1px dashed #ddd; border-radius: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <h1>LLM eval dashboard</h1>
+      <p>Groq · llama-3.3-70b-versatile · hybrid evaluation</p>
+    </div>
+    <div class="header-right">
+      <button class="run-btn" onclick="runEval()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Run evaluation
+      </button>
+      <span class="status-pill status-idle" id="status">ready</span>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="metric-label">Avg relevancy</div>
+      <div class="metric-value" id="m-relevancy">—</div>
+      <div class="metric-sub">semantic similarity</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Avg faithfulness</div>
+      <div class="metric-value" id="m-faithful">—</div>
+      <div class="metric-sub">precision on key terms</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Avg completeness</div>
+      <div class="metric-value" id="m-complete">—</div>
+      <div class="metric-sub">ground truth coverage</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Avg final score</div>
+      <div class="metric-value" id="m-final">—</div>
+      <div class="metric-sub">weighted hybrid</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Question results</div>
+    <div style="font-size:12px;color:#aaa;" id="sort-label"></div>
+  </div>
+  <div id="list"><div class="empty">Click "Run evaluation" to load results</div></div>
+
+  <script>
+    function scoreColor(s) { return s >= 0.65 ? "#639922" : s >= 0.4 ? "#BA7517" : "#E24B4A"; }
+    function badgeCls(s)   { return s >= 0.65 ? "badge badge-good" : s >= 0.4 ? "badge badge-mid" : "badge badge-low"; }
+    function badgeLbl(s)   { return s >= 0.65 ? "good" : s >= 0.4 ? "fair" : "low"; }
+    function avg(data, key){ return data.reduce((a,b) => a + (b[key] || 0), 0) / data.length; }
+
+    function scoreRow(label, value) {
+      const v = value || 0;
+      const pct = Math.round(v * 100);
+      const color = scoreColor(v);
+      return `<div class="score-row">
+        <div class="score-label">${label}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div class="score-num" style="color:${color};">${v.toFixed(2)}</div>
+      </div>`;
+    }
+
+    function render(data) {
+      document.getElementById("m-relevancy").textContent = avg(data, "answer_relevancy").toFixed(2);
+      document.getElementById("m-faithful").textContent  = avg(data, "faithfulness").toFixed(2);
+      document.getElementById("m-complete").textContent  = avg(data, "completeness").toFixed(2);
+      document.getElementById("m-final").textContent     = avg(data, "final_score").toFixed(2);
+      document.getElementById("sort-label").textContent  = data.length + " results · sorted by final score";
+
+      const sorted = [...data].sort((a,b) => (b.final_score || 0) - (a.final_score || 0));
+
+      document.getElementById("list").innerHTML = sorted.map((item, i) => {
+        const s = item.final_score || 0;
+        const hallu_display = 1 - (item.hallucination_penalty || 0);
+        const short = (item.response || "").replace(/\*\*/g, "").substring(0, 200) + ((item.response || "").length > 200 ? "…" : "");
+        return `<div class="result-card">
+          <div class="card-top">
+            <div class="question">${item.user_input}</div>
+            <span class="${badgeCls(s)}">${badgeLbl(s)}</span>
+          </div>
+          <div class="scores">
+            ${scoreRow("Final score",         item.final_score)}
+            ${scoreRow("Answer relevancy",    item.answer_relevancy)}
+            ${scoreRow("Faithfulness",        item.faithfulness)}
+            ${scoreRow("Completeness",        item.completeness)}
+            ${scoreRow("Keyword F1",          item.keyword_f1)}
+            ${scoreRow("Hallucination safe",  hallu_display)}
+          </div>
+          <button class="toggle-btn" id="btn${i}" onclick="toggle(${i})">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            show details
+          </button>
+          <div class="detail" id="d${i}">
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="dlabel">LLM response</div>
+                <div class="dtext">${short}</div>
+              </div>
+              <div class="detail-box">
+                <div class="dlabel">Ground truth</div>
+                <div class="dtext">${item.reference}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function toggle(i) {
+      const d = document.getElementById("d"+i);
+      const b = document.getElementById("btn"+i);
+      const open = d.classList.toggle("open");
+      b.classList.toggle("open", open);
+      b.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>${open ? "hide details" : "show details"}`;
+    }
+
+    function setStatus(text, cls) {
+      const el = document.getElementById("status");
+      el.textContent = text;
+      el.className = "status-pill " + cls;
+    }
+
+    async function runEval() {
+      setStatus("running…", "status-loading");
+      try {
+        const res = await fetch("/run-evaluation");
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        render(data);
+        setStatus("live results", "status-ok");
+      } catch(e) {
+        setStatus("API unreachable", "status-err");
+      }
+    }
+
+    setStatus("ready", "status-idle");
+  </script>
+</body>
+</html>

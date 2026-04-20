@@ -1,0 +1,112 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.metric-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); }
+.result-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.score-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.bar-bg { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 999px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; }
+.badge { font-size: 12px; padding: 2px 10px; border-radius: var(--border-radius-md); font-weight: 500; }
+.toggle-btn { font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border: none; background: none; padding: 0; margin-top: 6px; }
+.toggle-btn:hover { color: var(--color-text-primary); }
+.detail { display: none; margin-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
+.detail.open { display: block; }
+.dlabel { font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.dtext { font-size: 13px; color: var(--color-text-primary); line-height: 1.6; margin-bottom: 10px; }
+.run-btn { border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); font-size: 14px; padding: 8px 18px; border-radius: var(--border-radius-md); cursor: pointer; }
+.run-btn:hover { background: var(--color-background-secondary); }
+.status { font-size: 13px; color: var(--color-text-secondary); margin-top: 6px; min-height: 18px; }
+</style>
+
+<div style="padding: 1rem 0;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:18px; font-weight:500; color:var(--color-text-primary);">LLM eval dashboard</div>
+      <div style="font-size:13px; color:var(--color-text-secondary); margin-top:2px;">Groq · llama-3.3-70b-versatile</div>
+    </div>
+    <div style="text-align:right;">
+      <button class="run-btn" onclick="runEval()">Run evaluation ↗</button>
+      <div class="status" id="status">Showing last results</div>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card"><div class="metric-label">Total questions</div><div class="metric-value" id="m-total">2</div></div>
+    <div class="metric-card"><div class="metric-label">Avg relevancy</div><div class="metric-value" id="m-avg">0.68</div></div>
+    <div class="metric-card"><div class="metric-label">Above 0.5</div><div class="metric-value" id="m-pass">2 / 2</div></div>
+  </div>
+
+  <div style="font-size:13px; font-weight:500; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Results</div>
+  <div id="list"></div>
+</div>
+
+<script>
+const PRELOADED = [
+  { user_input: "What is AI?", response: "Artificial Intelligence (AI) refers to the development of computer systems that can perform tasks that typically require human intelligence, such as learning, problem-solving, reasoning, and perception.", reference: "Artificial Intelligence is the simulation of human intelligence.", answer_relevancy: 0.6388 },
+  { user_input: "What is Machine Learning?", response: "Machine Learning is a subset of artificial intelligence (AI) that enables systems to automatically learn and improve from experience without being explicitly programmed.", reference: "Machine Learning is a subset of AI that learns from data.", answer_relevancy: 0.7149 }
+];
+
+function scoreColor(s) { return s >= 0.65 ? "#639922" : s >= 0.4 ? "#BA7517" : "#E24B4A"; }
+function badgeCls(s)   { return s >= 0.65 ? "badge" : s >= 0.4 ? "badge" : "badge"; }
+function badgeBg(s)    { return s >= 0.65 ? "var(--color-background-success)" : s >= 0.4 ? "var(--color-background-warning)" : "var(--color-background-danger)"; }
+function badgeTxt(s)   { return s >= 0.65 ? "var(--color-text-success)" : s >= 0.4 ? "var(--color-text-warning)" : "var(--color-text-danger)"; }
+function badgeLbl(s)   { return s >= 0.65 ? "good" : s >= 0.4 ? "fair" : "low"; }
+
+function render(data) {
+  const avg = data.reduce((a,b) => a + b.answer_relevancy, 0) / data.length;
+  const pass = data.filter(d => d.answer_relevancy >= 0.5).length;
+  document.getElementById("m-total").textContent = data.length;
+  document.getElementById("m-avg").textContent = avg.toFixed(2);
+  document.getElementById("m-pass").textContent = pass + " / " + data.length;
+
+  document.getElementById("list").innerHTML = data.map((item, i) => {
+    const s = item.answer_relevancy;
+    const pct = Math.round(s * 100);
+    const short = item.response.length > 200 ? item.response.substring(0,200) + "…" : item.response;
+    return `<div class="result-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);">${item.user_input}</div>
+        <span class="badge" style="background:${badgeBg(s)};color:${badgeTxt(s)};">${badgeLbl(s)}</span>
+      </div>
+      <div class="score-row">
+        <div style="font-size:13px;color:var(--color-text-secondary);min-width:110px;">Answer relevancy</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${scoreColor(s)};"></div></div>
+        <div style="font-size:13px;font-weight:500;min-width:36px;text-align:right;color:${scoreColor(s)};">${s.toFixed(2)}</div>
+      </div>
+      <button class="toggle-btn" onclick="toggle(${i})">show details ▾</button>
+      <div class="detail" id="d${i}">
+        <div class="dlabel">LLM response</div>
+        <div class="dtext">${short}</div>
+        <div class="dlabel">Ground truth</div>
+        <div class="dtext">${item.reference}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggle(i) {
+  const d = document.getElementById("d"+i);
+  const b = d.previousElementSibling;
+  const open = d.classList.toggle("open");
+  b.textContent = open ? "hide details ▴" : "show details ▾";
+}
+
+async function runEval() {
+  document.getElementById("status").textContent = "Fetching from API…";
+  try {
+    const res = await fetch("http://127.0.0.1:8000/run-evaluation");
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    render(data);
+    document.getElementById("status").textContent = "Live results loaded";
+  } catch(e) {
+    document.getElementById("status").textContent = "API unreachable — showing cached results";
+    render(PRELOADED);
+  }
+}
+
+render(PRELOADED);
+</script>
