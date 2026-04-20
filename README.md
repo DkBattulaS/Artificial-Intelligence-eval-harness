@@ -190,6 +190,48 @@ A balanced combination of:
 6. Display results in structured format
 
 ---
+## 🏗️ Architecture Diagram
+
+```
+flowchart TD
+
+A[📂 Input Dataset (JSON)]
+B[❓ Question]
+C[🤖 LLM API (Groq / OpenAI)]
+D[💬 Generated Answer]
+E[📊 Evaluation Engine]
+
+F[🔤 Keyword Extraction]
+G[🧠 Embedding Model]
+H[📐 Semantic Similarity]
+I[📏 Precision & Recall]
+J[⚠️ Hallucination Penalty]
+K[🤖 LLM Judge]
+
+L[📈 Final Score Aggregation]
+M[📋 Evaluation Output]
+
+A --> B
+B --> C
+C --> D
+D --> E
+
+E --> F
+E --> G
+
+G --> H
+F --> I
+F --> J
+
+E --> K
+
+H --> L
+I --> L
+J --> L
+K --> L
+
+L --> M
+```
 
 ## 🎯 Use Cases
 
