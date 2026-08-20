@@ -134,8 +134,8 @@ Invalid cases are reported before the run starts. The run proceeds with valid ca
 ## Installation
 
 ```bash
-git clone https://github.com/jishanahmed-shaikh/artificial-Intelligence-eval-harness.git
-cd artificial-Intelligence-eval-harness
+git clone https://github.com/DkBattulaS/Artificial-Intelligence-eval-harness.git
+cd Artificial-Intelligence-eval-harness
 
 python -m venv .venv
 # Windows
