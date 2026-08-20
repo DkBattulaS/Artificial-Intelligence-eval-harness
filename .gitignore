@@ -1,6 +1,9 @@
 # Environment variables — never commit
 .env
-.env.*
+.env.local
+.env.production
+.env.staging
+# but NOT .env.example — that is intentionally committed
 
 # Python cache
 __pycache__/
