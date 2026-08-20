@@ -1,0 +1,18 @@
+[
+  {
+    "id": "fixture_001",
+    "question": "What is Machine Learning?",
+    "ground_truth": "Machine Learning is a subset of Artificial Intelligence that allows systems to learn from data and improve without explicit programming.",
+    "category": "ML Basics",
+    "difficulty": "easy",
+    "expected_keywords": ["learning", "data", "subset"]
+  },
+  {
+    "id": "fixture_002",
+    "question": "What is Deep Learning?",
+    "ground_truth": "Deep Learning is a subset of Machine Learning that uses neural networks with multiple layers to model complex patterns in data.",
+    "category": "ML Basics",
+    "difficulty": "medium",
+    "expected_keywords": ["neural", "networks", "layers"]
+  }
+]
